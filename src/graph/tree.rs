@@ -39,7 +39,7 @@ impl Tree {
     /// O(n) # nは木の大きさ
     /// # example
     /// ```rust
-    /// # use compete_lib::graph::undirected_tree::Tree;
+    /// # use compete_lib::graph::tree::Tree;
     /// // 1 -> 2 -> 3
     /// // |-> 4
     /// let tree = Tree::from(&vec![(1,2),(2,3),(1,4)]);
@@ -53,16 +53,18 @@ impl Tree {
         self.get_fartest_node(farthest.0).1
     }
     pub fn get_node_distance(&self, node: usize) -> Vec<Option<usize>> {
-        let mut stack = VecDeque::new();
+        let mut queue = VecDeque::new();
         let mut distance = vec![None; self.nodes.len()];
-        stack.push_back((node, 0));
-        while let Some((node, dis)) = stack.pop_front() {
-            distance[node] = Some(dis);
+        distance[node] = Some(0);
+        queue.push_back(node);
+        while let Some(node) = queue.pop_front() {
+            let dis = distance[node].unwrap();
             for edge in &self.nodes[node] {
                 if distance[edge.to_node].is_some() {
                     continue;
                 };
-                stack.push_back((edge.to_node, dis + 1));
+                distance[edge.to_node] = Some(dis + 1);
+                queue.push_back(edge.to_node);
             }
         }
         distance
@@ -71,7 +73,7 @@ impl Tree {
     /// O(n) nは木の大きさ
     /// # Examples
     /// ```rust
-    /// # use compete_lib::graph::undirected_tree::Tree;
+    /// # use compete_lib::graph::tree::Tree;
     /// // 1 -> 2 -> 3
     /// // |-> 4
     /// let tree = Tree::from(&vec![(1,2),(2,3),(1,4)]);
