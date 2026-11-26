@@ -8,13 +8,13 @@ pub struct Edge {
 pub struct Node {
     edges: Vec<Edge>,
 }
-pub struct Digraph {
+pub struct DirectedGraph {
     nodes: Vec<Node>,
 }
 
-impl Digraph {
-    pub fn new(edges: &Vec<Vec<Edge>>) -> Digraph {
-        Digraph {
+impl DirectedGraph {
+    pub fn new(edges: &Vec<Vec<Edge>>) -> DirectedGraph {
+        DirectedGraph {
             nodes: edges.iter().map(|x| Node { edges: x.to_vec() }).collect(),
         }
     }
@@ -23,11 +23,11 @@ impl Digraph {
     /// O(頂点の数 + 辺の数)
     /// # Example
     /// ```rust
-    /// # use::compete_lib::graph::digraph::Digraph;
+    /// # use::compete_lib::graph::directed_graph::DirectedGraph;
     /// // 0 -> 1 -> 2 -> 3   4 -> 5
     /// // |              ^
     /// // ---------------|
-    /// let graph = Digraph::from(vec![(0,1),(1,2),(2,3),(0,3),(4,5)]);
+    /// let graph = DirectedGraph::from(vec![(0,1),(1,2),(2,3),(0,3),(4,5)]);
     /// assert_eq!(Some(1), graph.get_node_distance(0,3)); // 0 -> 3
     /// assert_eq!(Some(2), graph.get_node_distance(0,2)); // 0 -> 1 -> 2
     /// assert_eq!(None, graph.get_node_distance(0,4)); // None,行く道がない
@@ -61,11 +61,11 @@ impl Digraph {
     /// O(頂点の数 + 辺の数)
     /// # Example
     /// ```rust
-    /// # use::compete_lib::graph::digraph::Digraph;
+    /// # use::compete_lib::graph::directed_graph::DirectedGraph;
     /// // 0 -> 1 -> 2 -> 3   4 -> 5
     /// // |              ^
     /// // ---------------|
-    /// let graph = Digraph::from(vec![(0,1),(1,2),(2,3),(0,3),(4,5)]);
+    /// let graph = DirectedGraph::from(vec![(0,1),(1,2),(2,3),(0,3),(4,5)]);
     /// assert_eq!(Some(vec![0,3]), graph.get_node_route(0,3)); // 0 -> 3
     /// assert_eq!(Some(vec![0,1,2]), graph.get_node_route(0,2)); // 0 -> 1 -> 2
     /// assert_eq!(None, graph.get_node_route(0,4)); // None,行く道がない
@@ -111,7 +111,7 @@ impl Digraph {
     }
 }
 
-impl From<Vec<(usize, usize)>> for Digraph {
+impl From<Vec<(usize, usize)>> for DirectedGraph {
     fn from(item: Vec<(usize, usize)>) -> Self {
         let mut nodes = vec![];
         for (from_index, to_index) in item {
@@ -123,6 +123,6 @@ impl From<Vec<(usize, usize)>> for Digraph {
             }
             nodes[from_index].edges.push(Edge { to_node: to_index });
         }
-        Digraph { nodes }
+        DirectedGraph { nodes }
     }
 }

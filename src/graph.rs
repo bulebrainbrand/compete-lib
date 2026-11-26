@@ -1,3 +1,3 @@
-pub mod digraph;
+pub mod directed_graph;
 pub mod tree;
-pub mod weighted_digraph;
+pub mod weighted_directed_graph;
