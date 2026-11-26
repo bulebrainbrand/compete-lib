@@ -1,5 +1,4 @@
-#[allow(dead_code)]
-trait BitControle {
+pub trait BitControle {
     fn is_bit_one(&self, num: usize) -> bool;
     fn is_bit_zero(&self, num: usize) -> bool;
     fn get_bit_num(&self, num: usize) -> usize;
