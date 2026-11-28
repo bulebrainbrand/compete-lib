@@ -1,0 +1,93 @@
+use std::usize;
+
+#[derive(Debug, Clone)]
+///
+/// e: 単位元
+/// op: `|&D,&D| -> D`の関数
+/// (D,op)がmonoidをなす
+/// Dはclone traitが必要(単位元を配列全体に満たすため)
+/// # Example
+/// ```rust
+/// # use crate::compete_lib::data_structure::segment_tree::SegmentTree;
+/// // 加算セグ木
+/// let mut tree = SegmentTree::new(8,0,|a,b| a + b);
+/// tree.set(0, 1);
+/// tree.set(1, 2);
+/// assert_eq!(3, tree.prod(0,8));
+/// tree.set(0, 3);
+/// assert_eq!(5, tree.prod(0,8));
+/// ```
+///
+///
+pub struct SegmentTree<D, F> {
+    size: usize,
+    data: Vec<D>,
+    e: D,
+    op: F,
+}
+
+impl<D: Clone, F: Fn(&D, &D) -> D> SegmentTree<D, F> {
+    pub fn new(size: usize, e: D, op: F) -> Self {
+        SegmentTree {
+            size,
+            data: vec![e.clone(); size * 2],
+            e: e,
+            op,
+        }
+    }
+    /// O(log n * m) nは要素数*2 mはopの最悪計算量
+    /// # Exapmle
+    /// ```rust
+    /// # use crate::compete_lib::data_structure::segment_tree::SegmentTree;
+    /// let mut tree = SegmentTree::new(8,0,|a,b| a + b);
+    /// tree.set(0, 1); // 0番目の要素を1に更新
+    /// ```
+    ///
+    pub fn set(&mut self, i: usize, d: D) {
+        assert!(i < self.size);
+        let mut i = self.size + i;
+        self.data[i] = d;
+        while i > 1 {
+            i >>= 1;
+            self.data[i] = (self.op)(&self.data[i * 2], &self.data[i * 2 + 1]);
+        }
+    }
+    /// 最悪計算量`O(log n)` nは要素数*2
+    ///
+    /// `[l,r)`の半開区間であることに注意
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use crate::compete_lib::data_structure::segment_tree::SegmentTree;
+    /// let mut tree = SegmentTree::new(8,0,|a,b| a + b);
+    ///
+    /// tree.set(0,1); // [1,0,0,0,0,0,0,0]
+    /// tree.set(2,8); // [1,0,8,0,0,0,0,0]
+    /// tree.set(3,1); // [1,0,8,1,0,0,0,0]
+    ///
+    /// assert_eq!(0, tree.prod(0,0)); // [] 単位元eが返る
+    /// assert_eq!(1, tree.prod(0,1)); // [1]
+    /// assert_eq!(9, tree.prod(0,3)); // [1,0,8]
+    /// assert_eq!(9, tree.prod(2,4)); // [8,1]
+    /// ```
+    pub fn prod(&self, mut l: usize, mut r: usize) -> D {
+        assert!(l <= r && r <= self.size);
+        let mut sml = self.e.clone();
+        let mut smr = self.e.clone();
+        l += self.size;
+        r += self.size;
+        while l < r {
+            if l & 1 == 1 {
+                sml = (self.op)(&sml, &self.data[l]);
+                l += 1;
+            }
+            if r & 1 == 1 {
+                r -= 1;
+                smr = (self.op)(&self.data[r], &smr);
+            }
+            l >>= 1;
+            r >>= 1;
+        }
+        (self.op)(&sml, &smr)
+    }
+}
