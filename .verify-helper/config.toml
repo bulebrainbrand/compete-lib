@@ -1,0 +1,6 @@
+# Override the built-in Rust support so each file depends only on the modules it
+# actually uses (the built-in one makes every file in the crate depend on all files).
+[languages.rs]
+list_dependencies = "python3 .verify-helper/deps.py {path}"
+compile = "sh -c 'cargo build --release --example $(basename {path} .rs)'"
+execute = "sh -c 'target/release/examples/$(basename {path} .rs)'"
