@@ -29,15 +29,11 @@ jobs:
 
       # Initialize your own environment for resolving.
       # required only if you set `languages.rust.list_dependencies_backend.kind` to `"cargo-udeps"`
-      - name: Set up Rust (nightly)
+      - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: nightly
+          toolchain: stable
           targets: x86_64-unknown-linux-gnu
-      - name: Set up cargo-binstall
-        uses: cargo-bins/cargo-binstall@main
-      - name: Install cargo-udeps for Rust
-        run: cargo binstall --no-confirm cargo-udeps
       - name: oj-resolve
         uses: competitive-verifier/actions/oj-resolve@v2
         with:
@@ -88,7 +84,7 @@ jobs:
         with:
           cache-pip: true
       # Initialize your own environment for verification.
-      - name: Set up Rust (1.42.0)
+      - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: "stable"
