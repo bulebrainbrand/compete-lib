@@ -35,8 +35,30 @@ impl<D: Clone, F: Fn(&D, &D) -> D> SegmentTree<D, F> {
             op,
         }
     }
-    /// O(log n * m) nは要素数*2 mはopの最悪計算量
-    /// # Exapmle
+    /// O(n)
+    /// - nは`v.len()`
+    /// Vecから構築します。newしてsetをn回呼ぶのに比べてlog nだけ高速です。
+    /// 配列の長さがそのままsizeになるので可変長な場合は最大の長さまでeで埋めて伸ばしてください
+    /// # Example
+    /// ```rust
+    /// # use crate::compete_lib::data_structure::segment_tree::SegmentTree;
+    /// let vector = vec![1,2,3,4,5];
+    /// let tree = SegmentTree::from_vec(vector, 0, |a, b| a +b);
+    /// assert_eq!(15, tree.prod(0,5));
+    /// ```
+    pub fn from_vec(v: Vec<D>, e: D, op: F) -> Self {
+        let size = v.len();
+        let mut data = vec![e.clone(); size];
+        data.extend(v);
+        for i in (1..size).rev() {
+            data[i] = op(&data[2 * i], &data[2 * i + 1]);
+        }
+        SegmentTree { size, data, e, op }
+    }
+    /// O(log n * p)
+    /// - nは`SegmentTree.size / 2`
+    /// - pは`SegmentTree.op`の最悪計算量
+    /// # Examples
     /// ```rust
     /// # use crate::compete_lib::data_structure::segment_tree::SegmentTree;
     /// let mut tree = SegmentTree::new(8,0,|a,b| a + b);
@@ -52,7 +74,28 @@ impl<D: Clone, F: Fn(&D, &D) -> D> SegmentTree<D, F> {
             self.data[i] = (self.op)(&self.data[i * 2], &self.data[i * 2 + 1]);
         }
     }
-    /// 最悪計算量`O(log n)` nは要素数*2
+    /// O(log n * p + f)
+    /// - nは`SegmentTree.size / 2`
+    /// - pは`SegmentTree.op`の最悪計算量
+    /// - fは引数`f`の最悪計算量
+    /// # Examples
+    /// ```rust
+    /// # use crate::compete_lib::data_structure::segment_tree::SegmentTree;
+    /// let mut tree = SegmentTree::new(8,0,|a,b| a + b);
+    /// tree.set(0, 1); // 0番目の要素を1に更新
+    /// ```
+    ///
+    pub fn update<M: FnOnce(&D) -> D>(&mut self, i: usize, f: M) {
+        assert!(i < self.size);
+        let mut i = self.size + i;
+        self.data[i] = f(&self.data[i]);
+        while i > 1 {
+            i >>= 1;
+            self.data[i] = (self.op)(&self.data[i * 2], &self.data[i * 2 + 1]);
+        }
+    }
+    /// `O(log n)`
+    /// - nは`SegmentTree.size / 2`
     ///
     /// `[l,r)`の半開区間であることに注意
     ///
